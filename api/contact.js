@@ -1,12 +1,15 @@
-import express from "express";
 import nodemailer from "nodemailer";
 
-const app = express();
+export default async function handler(req, res) {
+  // Health check
+  if (req.method === "GET") {
+    return res.json({ ok: true });
+  }
 
-// Parse JSON bodies
-app.use(express.json());
+  if (req.method !== "POST") {
+    return res.status(405).json({ ok: false, error: "Method not allowed" });
+  }
 
-app.post("/", async (req, res) => {
   const { fname, lname, email, phone, msg } = req.body ?? {};
 
   if (!fname || !lname || !email || !msg) {
@@ -39,17 +42,4 @@ app.post("/", async (req, res) => {
     console.error("Mail send failed", err);
     res.status(500).json({ ok: false, error: "Failed to send message" });
   }
-});
-
-// Basic health check
-app.get("/", (req, res) => {
-  res.json({ ok: true });
-});
-
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
-
-export default app;
+}
